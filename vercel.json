@@ -4,14 +4,15 @@
   "outputDirectory": "client/build",
   "installCommand": "npm install",
   "framework": "create-react-app",
+  "functions": {
+    "api/**/*.js": {
+      "runtime": "@vercel/node@3.0.0"
+    }
+  },
   "rewrites": [
     {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
+      "source": "/api/:path*",
+      "destination": "/api/:path*"
     }
   ]
 }
