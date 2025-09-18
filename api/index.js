@@ -316,7 +316,5 @@ app.post(
   }
 );
 
-app.listen(port, () => {
-  // Keep server startup logging for production monitoring
-  console.log(`Server is running on port ${port}`);
-});
+// Export the Express app as a serverless function
+module.exports = app;
