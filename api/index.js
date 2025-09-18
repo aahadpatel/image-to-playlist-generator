@@ -75,7 +75,7 @@ const validateToken = (req, res, next) => {
 };
 
 // Authentication endpoints
-app.get("/auth/login", (req, res) => {
+app.get("/login", (req, res) => {
   const scope = [
     "user-read-private",
     "user-read-email",
@@ -93,7 +93,7 @@ app.get("/auth/login", (req, res) => {
   res.json({ url: `${SPOTIFY_AUTH_URL}?${queryParams}` });
 });
 
-app.post("/auth/token", async (req, res) => {
+app.post("/token", async (req, res) => {
   const { code } = req.body;
 
   if (!code) {
@@ -147,7 +147,7 @@ app.post("/auth/token", async (req, res) => {
 });
 
 // Artist search endpoint
-app.get("/api/search/artists", validateToken, async (req, res) => {
+app.get("/search/artists", validateToken, async (req, res) => {
   const { q } = req.query;
   const token = req.headers.authorization;
 
@@ -197,7 +197,7 @@ app.get("/api/search/artists", validateToken, async (req, res) => {
 });
 
 // Get artist's top tracks
-app.get("/api/artists/:id/top-tracks", validateToken, async (req, res) => {
+app.get("/artists/:id/top-tracks", validateToken, async (req, res) => {
   const { id } = req.params;
   const token = req.headers.authorization;
 
@@ -257,7 +257,7 @@ const validatePlaylistInput = (req, res, next) => {
 };
 
 app.post(
-  "/api/playlists",
+  "/playlists",
   validateToken,
   validatePlaylistInput,
   async (req, res) => {

@@ -1,10 +1,13 @@
 {
+  "version": 2,
   "buildCommand": "cd client && npm install && npm run build",
   "outputDirectory": "client/build",
   "rewrites": [
-    {
-      "source": "/api/(.*)",
-      "destination": "/api/index.js"
-    }
+    { "source": "/api/login", "destination": "/api/index" },
+    { "source": "/api/token", "destination": "/api/index" },
+    { "source": "/api/search/artists", "destination": "/api/index" },
+    { "source": "/api/artists/:id/top-tracks", "destination": "/api/index" },
+    { "source": "/api/playlists", "destination": "/api/index" },
+    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }
