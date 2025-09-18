@@ -95,7 +95,7 @@ function App() {
       if (code) {
         try {
           // Exchange code for token
-          const response = await fetch(`${API_BASE_URL}/auth/token`, {
+          const response = await fetch(`${API_BASE_URL}/token`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -142,7 +142,7 @@ function App() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch(`${API_BASE_URL}/auth/login`);
+      const response = await fetch(`${API_BASE_URL}/login`);
       const data = await response.json();
       window.location.href = data.url;
     } catch (error) {
