@@ -2,16 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "client/**",
+      "src": "client/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "zeroConfig": true,
-        "buildCommand": "cd client && npm install && npm run build",
-        "outputDirectory": "client/build"
+        "distDir": "build"
       }
     },
     {
-      "src": "server/**",
+      "src": "server/index.js",
       "use": "@vercel/node"
     }
   ],
@@ -21,14 +19,11 @@
       "dest": "/server/index.js"
     },
     {
-      "src": "/(.*)",
-      "dest": "/client/build/$1",
-      "continue": true
+      "handle": "filesystem"
     },
     {
       "src": "/(.*)",
-      "dest": "/client/build/index.html",
-      "status": 200
+      "dest": "/client/build/index.html"
     }
   ]
 }
