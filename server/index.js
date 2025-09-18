@@ -75,7 +75,7 @@ const validateToken = (req, res, next) => {
 };
 
 // Authentication endpoints
-app.get("/auth/login", (req, res) => {
+app.get("/api/auth/login", (req, res) => {
   const scope = [
     "user-read-private",
     "user-read-email",
@@ -93,7 +93,7 @@ app.get("/auth/login", (req, res) => {
   res.json({ url: `${SPOTIFY_AUTH_URL}?${queryParams}` });
 });
 
-app.post("/auth/token", async (req, res) => {
+app.post("/api/auth/token", async (req, res) => {
   const { code } = req.body;
 
   if (!code) {
