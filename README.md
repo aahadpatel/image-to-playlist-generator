@@ -32,18 +32,21 @@ Transform any festival lineup image into a Spotify playlist instantly! This web 
 ## 🔧 Installation
 
 1. Clone the repository:
+
    ```bash
    git clone https://github.com/aahadpatel/image-to-playlist-generator.git
    cd image-to-playlist-generator
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    cd client && npm install
    ```
 
 3. Create a `.env` file in the root directory:
+
    ```env
    SPOTIFY_CLIENT_ID=your_client_id
    SPOTIFY_CLIENT_SECRET=your_client_secret
