@@ -4,19 +4,10 @@ const cookieParser = require("cookie-parser");
 const dotenv = require("dotenv");
 const axios = require("axios");
 
-// Load environment variables from root directory using absolute path
+// Load environment variables
 const path = require("path");
 const envPath = path.resolve(__dirname, "../.env");
-console.log("Looking for .env file at:", envPath);
-const result = dotenv.config({ path: envPath });
-if (result.error) {
-  console.error("Error loading .env:", result.error);
-} else {
-  console.log("Environment variables loaded successfully");
-  console.log("CLIENT_ID exists:", !!process.env.CLIENT_ID);
-  console.log("CLIENT_SECRET exists:", !!process.env.CLIENT_SECRET);
-  console.log("REDIRECT_URI exists:", !!process.env.REDIRECT_URI);
-}
+dotenv.config({ path: envPath });
 
 // Validate required environment variables
 const requiredEnvVars = ["CLIENT_ID", "CLIENT_SECRET", "REDIRECT_URI"];
