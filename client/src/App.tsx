@@ -10,6 +10,7 @@ import {
 } from "@mui/material";
 import PlaylistForm from "./components/PlaylistForm";
 import { Artist, SelectedArtist } from "./types";
+import { API_BASE_URL } from "./config";
 
 const theme = createTheme({
   palette: {
@@ -94,7 +95,7 @@ function App() {
       if (code) {
         try {
           // Exchange code for token
-          const response = await fetch("http://127.0.0.1:5002/auth/token", {
+          const response = await fetch(`${API_BASE_URL}/auth/token`, {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
@@ -141,7 +142,7 @@ function App() {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5002/auth/login");
+      const response = await fetch(`${API_BASE_URL}/auth/login`);
       const data = await response.json();
       window.location.href = data.url;
     } catch (error) {
