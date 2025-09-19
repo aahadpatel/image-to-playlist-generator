@@ -11,14 +11,12 @@
   "dependencies": {
     "@emotion/react": "^11.11.3",
     "@emotion/styled": "^11.11.0",
-    "@mui/icons-material": "^5.18.0",
+    "@mui/icons-material": "^5.15.10",
     "@mui/material": "^5.15.10",
-    "axios": "^1.6.7",
     "next": "14.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "tesseract.js": "^4.1.1",
-    "typescript": "^5.0.0"
+    "tesseract.js": "^4.1.1"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
@@ -26,6 +24,7 @@
     "@types/react-dom": "^18.2.19",
     "@types/tesseract.js": "^2.0.0",
     "eslint": "^8.0.0",
-    "eslint-config-next": "14.1.0"
+    "eslint-config-next": "14.1.0",
+    "typescript": "^5.0.0"
   }
 }

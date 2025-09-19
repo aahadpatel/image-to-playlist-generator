@@ -6,6 +6,7 @@ export interface Artist {
     total: number;
   };
   genres: string[];
+  popularity: number;
 }
 
 export interface SelectedArtist extends Artist {

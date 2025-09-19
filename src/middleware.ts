@@ -29,7 +29,7 @@ export async function middleware(request: NextRequest) {
 
   // Skip auth check for public routes
   if (
-    request.nextUrl.pathname.startsWith("/api/auth") ||
+    request.nextUrl.pathname.startsWith("/auth") ||
     request.nextUrl.pathname === "/"
   ) {
     return response;
@@ -38,7 +38,7 @@ export async function middleware(request: NextRequest) {
   const accessToken = request.cookies.get("spotify_access_token");
 
   if (!accessToken) {
-    return NextResponse.redirect(new URL("/api/auth/login", request.url));
+    return NextResponse.redirect(new URL("/auth/login", request.url));
   }
 
   // Add the Bearer token
@@ -52,14 +52,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    /*
-     * Match all request paths except for the ones starting with:
-     * - _next/static (static files)
-     * - _next/image (image optimization files)
-     * - favicon.ico (favicon file)
-     * - public folder
-     */
-    "/((?!_next/static|_next/image|favicon.ico|public/).*)",
-  ],
+  matcher: ["/((?!_next/static|_next/image|favicon.ico|public/).*)"],
 };

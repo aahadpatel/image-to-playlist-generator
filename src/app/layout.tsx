@@ -5,7 +5,7 @@ import "@/styles/globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Spotify Artist to Song Generator",
+  title: "Festival Playlist Generator",
   description: "Generate playlists from festival lineups",
 };
 

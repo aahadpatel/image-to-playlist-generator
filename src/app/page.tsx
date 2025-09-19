@@ -60,7 +60,7 @@ export default function Home() {
   }, []);
 
   const handleLogin = () => {
-    window.location.href = "/api/auth/login";
+    window.location.href = "/auth/login";
   };
 
   const handleArtistSelect = (artist: Artist) => {
