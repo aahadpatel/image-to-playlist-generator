@@ -29,7 +29,7 @@ app.use(express.json());
 
 const SPOTIFY_AUTH_URL = "https://accounts.spotify.com/authorize";
 
-app.get("/api/login", (req, res) => {
+app.get("/login", (req, res) => {
   const scope = [
     "user-read-private",
     "user-read-email",
