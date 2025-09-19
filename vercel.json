@@ -1,7 +1,11 @@
 {
   "version": 2,
-  "buildCommand": "next build",
-  "devCommand": "next dev",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
   "installCommand": "npm install",
-  "framework": "nextjs"
+  "framework": "nextjs",
+  "env": {
+    "NEXT_PUBLIC_APP_URL": "https://image-to-playlist-generator.vercel.app",
+    "REDIRECT_URI": "https://image-to-playlist-generator.vercel.app/auth/callback"
+  }
 }
