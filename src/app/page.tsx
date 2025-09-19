@@ -7,6 +7,12 @@ import PlaylistForm from "@/components/PlaylistForm";
 import { Artist, SelectedArtist } from "@/types";
 import { MusicNote } from "@mui/icons-material";
 
+const GradientBackground = styled(Box)({
+  minHeight: "100vh",
+  background: "linear-gradient(135deg, #1DB954 0%, #191414 100%)",
+  padding: "2rem 0",
+});
+
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
   borderRadius: theme.spacing(2),
@@ -14,12 +20,6 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
   backdropFilter: "blur(10px)",
   boxShadow: "0 8px 32px rgba(0, 0, 0, 0.1)",
 }));
-
-const GradientBackground = styled(Box)({
-  minHeight: "100vh",
-  background: "linear-gradient(135deg, #1DB954 0%, #191414 100%)",
-  padding: "2rem 0",
-});
 
 const StyledButton = styled(Button)(({ theme }) => ({
   padding: "1rem 2rem",
@@ -42,8 +42,8 @@ export default function Home() {
   useEffect(() => {
     const checkToken = async () => {
       try {
-        const response = await fetch("/api/auth/check", {
-          credentials: "include",
+        const response = await fetch("/auth/check", {
+          credentials: "include", // Important for cookies
         });
         if (response.ok) {
           const data = await response.json();

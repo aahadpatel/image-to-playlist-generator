@@ -83,7 +83,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     try {
       const artistTracks = await Promise.all(
         selectedArtists.map(async (artist) => {
-          const response = await fetch(`/api/artists/${artist.id}/top-tracks`, {
+          const response = await fetch(`/artists/${artist.id}/top-tracks`, {
             headers: {
               Authorization: token,
             },
@@ -103,7 +103,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         new Set(artistTracks.flatMap((at) => at.tracks))
       );
 
-      const response = await fetch("/api/playlists", {
+      const response = await fetch("/playlists", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

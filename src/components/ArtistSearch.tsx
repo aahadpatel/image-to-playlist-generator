@@ -53,7 +53,7 @@ const ArtistSearch: React.FC<ArtistSearchProps> = ({
         }
 
         const response = await fetch(
-          `/api/search/artists?q=${encodeURIComponent(searchTerm)}`,
+          `/search/artists?q=${encodeURIComponent(searchTerm)}`,
           {
             headers: {
               Authorization: token,
