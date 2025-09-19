@@ -4,15 +4,10 @@
   "outputDirectory": "client/build",
   "installCommand": "npm install",
   "framework": "create-react-app",
-  "functions": {
-    "api/**/*.js": {
-      "runtime": "nodejs18.x"
-    }
-  },
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
     }
   ]
 }
