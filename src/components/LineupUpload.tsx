@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useRef, useEffect } from "react";
 import {
   Box,
@@ -19,7 +21,7 @@ import CloseIcon from "@mui/icons-material/Close";
 import ImageIcon from "@mui/icons-material/Image";
 import IconButton from "@mui/material/IconButton";
 import { createWorker } from "tesseract.js";
-import { Artist } from "../types";
+import { Artist } from "@/types";
 
 interface LoggerMessage {
   jobId: string;
@@ -30,27 +32,18 @@ interface LoggerMessage {
 interface LineupUploadProps {
   onArtistsFound: (artists: Artist[]) => void;
   token: string;
-  defaultSongCount?: number; // Add prop for default song count
+  defaultSongCount?: number;
 }
 
 const LineupUpload: React.FC<LineupUploadProps> = ({
   onArtistsFound,
   token,
-  defaultSongCount = 1, // Default to 1 if not provided
+  defaultSongCount = 1,
 }) => {
   const [isProcessing, setIsProcessing] = useState(false);
   const processingRef = useRef(false);
   const [progress, setProgress] = useState<string>("");
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
-
-  // Cleanup object URL when image is removed or component unmounts
-  useEffect(() => {
-    return () => {
-      if (uploadedImage) {
-        URL.revokeObjectURL(uploadedImage);
-      }
-    };
-  }, [uploadedImage]);
   const [imageDialog, setImageDialog] = useState(false);
   const [foundArtists, setFoundArtists] = useState<Artist[]>([]);
   const rejectedArtistIdsRef = useRef<Set<string>>(new Set());
@@ -68,7 +61,14 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
     currentFoundArtists: [],
   });
 
-  // Format large numbers with commas
+  useEffect(() => {
+    return () => {
+      if (uploadedImage) {
+        URL.revokeObjectURL(uploadedImage);
+      }
+    };
+  }, [uploadedImage]);
+
   const formatNumber = (num: number): string => {
     return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
@@ -79,26 +79,21 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // If there's an existing image or processing, clean up everything
     if (uploadedImage || isProcessing) {
-      // Clean up existing image
       if (uploadedImage) {
         URL.revokeObjectURL(uploadedImage);
       }
-      // Close any open dialogs
       if (imageDialog) {
         setImageDialog(false);
       }
       if (confirmationDialog.open) {
         setConfirmationDialog((prev) => ({ ...prev, open: false }));
       }
-      // Reset processing state
       setIsProcessing(false);
       processingRef.current = false;
       setProgress("");
     }
 
-    // Create URL for the new image
     const imageUrl = URL.createObjectURL(file);
     setUploadedImage(imageUrl);
 
@@ -106,7 +101,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
     processingRef.current = true;
     setProgress("Initializing OCR...");
 
-    // Reset states for new processing
     setFoundArtists([]);
     if (confirmationDialog.open) {
       setConfirmationDialog((prev) => ({ ...prev, open: false }));
@@ -131,13 +125,11 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
       } = await worker.recognize(file);
       await worker.terminate();
 
-      // Check if processing was stopped during OCR
       if (!processingRef.current) {
         setProgress("Processing stopped.");
         return;
       }
 
-      // Clean and normalize the text to extract artist names
       const cleanText = text
         .replace(
           /\b(?:SATURDAY|SUNDAY|MONDAY|TUESDAY|WEDNESDAY|THURSDAY|FRIDAY)\b.*$/gim,
@@ -148,27 +140,24 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
         .replace(
           /\b(?:INBLQ|KATSEYE|SOMBR|GENESI|BIEBANG|lallfw|Mainrlazer|vﬂllllgThllg)\b/g,
           ""
-        ) // Remove known non-artist text
-        .replace(/\b\d{2,}|[A-Z]\d+\b/g, "") // Remove numbers and codes
-        .replace(/[«"]/g, "x") // Replace quotes with x for splitting
-        .replace(/[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]/g, "-"); // Convert special chars to delimiter
+        )
+        .replace(/\b\d{2,}|[A-Z]\d+\b/g, "")
+        .replace(/[«"]/g, "x")
+        .replace(/[!"#$%&'()*+,./:;<=>?@[\]^_`{|}~]/g, "-");
 
-      // Split into potential artist names and clean them
       const names = cleanText
-        .split(/[-\n\r&x]+/) // Split on common delimiters including x
+        .split(/[-\n\r&x]+/)
         .map((name: string) => {
-          // Clean up the name
           return name
             .trim()
-            .replace(/\s+/g, " ") // Normalize spaces
-            .replace(/^[x\s]+|[x\s]+$/g, "") // Remove x's at start/end
-            .replace(/\s*(?:x|\+)\s*/g, " "); // Convert x or + between words to space
+            .replace(/\s+/g, " ")
+            .replace(/^[x\s]+|[x\s]+$/g, "")
+            .replace(/\s*(?:x|\+)\s*/g, " ");
         })
         .filter((name: string) => {
-          // Basic name validation
-          if (name.length < 2 || name.length > 50) return false; // Increased max length for collaborations
-          if (!/[A-Za-z]/.test(name)) return false; // Must contain letters
-          if (/^[x\s]+$/.test(name)) return false; // Exclude x's used as separators
+          if (name.length < 2 || name.length > 50) return false;
+          if (!/[A-Za-z]/.test(name)) return false;
+          if (/^[x\s]+$/.test(name)) return false;
           if (
             /^(?:of|the|and|or|feat|ft|presents?|debut|premiere|world|bunker)$/i.test(
               name
@@ -182,19 +171,13 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
           )
             return false;
           if (/^[A-Z\s]+$/.test(name) && name.length > 10) return false;
-
-          // Additional filters for the specific lineup
-          if (/^(?:friends|ultra)$/i.test(name)) return false; // Common words that aren't artists
-          if (/^[A-Z0-9]{5,}$/i.test(name)) return false; // Random uppercase strings
-
+          if (/^(?:friends|ultra)$/i.test(name)) return false;
+          if (/^[A-Z0-9]{5,}$/i.test(name)) return false;
           return true;
         })
-        // Special handling for collaborations
         .map((name: string) => {
-          // Handle special cases like "Armin van Buuren x Adam Beyer"
           if (name.includes(" x ")) {
             const parts = name.split(" x ").map((p) => p.trim());
-            // Only keep collaborations where both parts look like valid names
             if (parts.every((p) => p.length > 1 && /[A-Za-z]/.test(p))) {
               return parts;
             }
@@ -202,7 +185,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
           return [name];
         })
         .flat()
-        // Remove duplicates (case-insensitive)
         .filter(
           (name: string, index: number, self: string[]) =>
             index ===
@@ -213,7 +195,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
 
       setProgress("Found artists, starting search on Spotify...");
 
-      // Reset state for new processing
       let processedCount = 0;
       const notFoundArtists: string[] = [];
       const newFoundArtists: Artist[] = [];
@@ -223,11 +204,7 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
         score: number;
       }
 
-      // Log current rejected artists set
-
-      // Process artists sequentially
       for (const name of names) {
-        // Check if processing was stopped
         if (!processingRef.current) {
           setProgress("Processing stopped. Added artists found so far.");
           if (newFoundArtists.length > 0) {
@@ -238,31 +215,28 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
               }))
             );
           }
-          return; // Exit the entire function
+          return;
         }
+
         try {
-          // Try multiple search queries for better matching
           const searchQueries = [
-            name, // Exact name
-            name.replace(/[^\w\s]/g, " "), // Remove special chars
-            name.split(/\s+/)[0], // First word only
+            name,
+            name.replace(/[^\w\s]/g, " "),
+            name.split(/\s+/)[0],
           ];
 
           let bestMatch: Artist | null = null;
           let bestScore = 0;
 
-          // Clean up the search name
           const searchName = name
             .toLowerCase()
-            .replace(/[^\w\s]/g, "") // Remove special characters
-            .replace(/\s+/g, " ") // Normalize spaces
+            .replace(/[^\w\s]/g, "")
+            .replace(/\s+/g, " ")
             .trim();
 
           for (const query of searchQueries) {
             const response = await fetch(
-              `http://127.0.0.1:5002/api/search/artists?q=${encodeURIComponent(
-                query
-              )}`,
+              `/api/search/artists?q=${encodeURIComponent(query)}`,
               {
                 headers: {
                   Authorization: token,
@@ -277,12 +251,10 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
             const data = await response.json();
             const items = data.artists?.items || [];
 
-            // First filter out any already rejected artists
-            const nonRejectedItems = items.filter((item: Artist) => {
-              return !rejectedArtistIdsRef.current.has(item.id);
-            });
+            const nonRejectedItems = items.filter(
+              (item: Artist) => !rejectedArtistIdsRef.current.has(item.id)
+            );
 
-            // Get potential matches with scores from non-rejected items only
             const potentialMatches = nonRejectedItems
               .map((artist: Artist): ScoredMatch => {
                 const artistName = artist.name
@@ -291,12 +263,10 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                   .trim();
                 let score = 0;
 
-                // Exact match gets highest score
                 if (artistName === searchName) score += 100;
-                // Partial matches get points based on overlap
                 else if (artistName.includes(searchName)) score += 50;
                 else if (searchName.includes(artistName)) score += 40;
-                // Bonus for matching individual words
+
                 const searchWords = searchName.split(/\s+/);
                 const artistWords = artistName.split(/\s+/);
                 const matchingWords = searchWords.filter((word: string) =>
@@ -307,11 +277,9 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                 ).length;
                 score += (matchingWords / searchWords.length) * 30;
 
-                // Bonus points for popularity and followers
                 score += (artist?.popularity || 0) / 10;
                 score += Math.log(artist.followers.total + 1) / 2;
 
-                // Penalty for length difference
                 const lengthDiff = Math.abs(
                   artistName.length - searchName.length
                 );
@@ -321,19 +289,16 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
               })
               .filter(
                 (match: ScoredMatch) =>
-                  // Filter out low scores and rejected artists
                   match.score > 30 &&
                   !rejectedArtistIdsRef.current.has(match.artist.id)
               )
               .sort((a: ScoredMatch, b: ScoredMatch) => b.score - a.score)
-              .slice(0, 3); // Get top 3 matches
+              .slice(0, 3);
 
-            // If no non-rejected matches remain, skip this query
             if (nonRejectedItems.length === 0) {
               continue;
             }
 
-            // Double check against current rejected list
             const currentlyRejected = nonRejectedItems.filter((item: Artist) =>
               rejectedArtistIdsRef.current.has(item.id)
             );
@@ -344,13 +309,12 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
               if (filteredItems.length === 0) {
                 continue;
               }
-              // Update potential matches with filtered items
               potentialMatches.length = 0;
               potentialMatches.push(
                 ...filteredItems.map(
                   (artist: Artist): ScoredMatch => ({
                     artist,
-                    score: 0, // Reset score since we're just checking for rejection
+                    score: 0,
                   })
                 )
               );
@@ -358,27 +322,22 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
 
             if (potentialMatches.length > 0) {
               if (potentialMatches[0].score >= 80) {
-                // Very confident match
                 bestMatch = potentialMatches[0].artist;
                 bestScore = potentialMatches[0].score;
                 break;
               } else if (!bestMatch || potentialMatches[0].score > bestScore) {
-                // Ask user to confirm the match
                 const confirmedArtist = await new Promise<Artist | null>(
                   (resolve) => {
-                    // Check if processing was stopped before showing dialog
                     if (!processingRef.current) {
                       resolve(null);
                       return;
                     }
 
-                    // Filter out any previously rejected artists before showing dialog
                     const nonRejectedMatches = potentialMatches.filter(
                       (match: ScoredMatch) =>
                         !rejectedArtistIdsRef.current.has(match.artist.id)
                     );
 
-                    // If no non-rejected matches remain, skip this artist
                     if (nonRejectedMatches.length === 0) {
                       notFoundArtists.push(name);
                       resolve(null);
@@ -398,19 +357,14 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                           ...prev,
                           open: false,
                         }));
-                        // Check if processing was stopped during confirmation
                         if (!processingRef.current) {
                           resolve(null);
                         } else {
                           if (artist === null) {
-                            // User rejected all artists, add them to rejected list
-                            // Add all artists from the dialog to rejected list
                             dialogMatches.forEach((artist: Artist) => {
                               rejectedArtistIdsRef.current.add(artist.id);
                             });
-                            // Add to notFoundArtists to track in summary
                             notFoundArtists.push(name);
-                            // Close dialog and continue to next artist
                             resolve(null);
                           } else {
                             resolve(artist);
@@ -423,7 +377,7 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
 
                 if (confirmedArtist) {
                   bestMatch = confirmedArtist;
-                  bestScore = 100; // User confirmed, so give it max score
+                  bestScore = 100;
                   break;
                 }
               }
@@ -431,8 +385,7 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
           }
 
           if (bestMatch && bestMatch.id) {
-            // Ensure bestMatch is a valid Artist
-            newFoundArtists.push(bestMatch as Artist); // Add to our local array
+            newFoundArtists.push(bestMatch as Artist);
           } else {
             notFoundArtists.push(name);
           }
@@ -442,18 +395,15 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
             `Processing artists... ${processedCount}/${names.length}`
           );
 
-          // Add a small delay between artists to avoid rate limits
           if (processedCount < names.length) {
             await new Promise((resolve) => setTimeout(resolve, 100));
           }
         } catch (error) {
-          // Keep error logging for production debugging
           console.error(`Error searching for artist "${name}":`, error);
           notFoundArtists.push(name);
         }
       }
 
-      // Show results summary
       const foundCount = newFoundArtists.length;
       const notFoundCount = notFoundArtists.length;
 
@@ -465,24 +415,20 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
         setProgress(`Successfully added ${foundCount} artists!`);
       }
 
-      // Update the UI with found artists
       if (foundCount > 0) {
         onArtistsFound(
           newFoundArtists.map((artist) => ({
             ...artist,
-            songCount: defaultSongCount, // Initialize each artist with the default song count
+            songCount: defaultSongCount,
           }))
         );
       }
     } catch (error) {
-      // Keep error logging for production debugging
       console.error("Error processing image:", error);
       setProgress("Error processing image");
       setIsProcessing(false);
     } finally {
-      // Only clear the progress message if we completed successfully
       if (processingRef.current) {
-        // Keep the final status message visible for a moment
         setTimeout(() => {
           processingRef.current = false;
           setIsProcessing(false);
@@ -552,12 +498,10 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                     URL.revokeObjectURL(uploadedImage);
                   }
                   setUploadedImage(null);
-                  // Reset the file input
                   const fileInput = document.getElementById(
                     "lineup-upload"
                   ) as HTMLInputElement;
                   if (fileInput) fileInput.value = "";
-                  // Close image dialog if it's open
                   if (imageDialog) {
                     setImageDialog(false);
                   }
@@ -594,7 +538,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                 onClick={() => {
                   processingRef.current = false;
                   setIsProcessing(false);
-                  // Close any open confirmation dialog
                   if (confirmationDialog.open) {
                     setConfirmationDialog((prev) => ({
                       ...prev,
@@ -604,7 +547,7 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                   setProgress(
                     "Processing stopped. Added artists found so far."
                   );
-                  onArtistsFound(foundArtists); // Send any artists found so far
+                  onArtistsFound(foundArtists);
                 }}
                 startIcon={<CloseIcon />}
               >
@@ -618,7 +561,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
         )}
       </Paper>
 
-      {/* Artist Confirmation Dialog */}
       <Dialog
         open={confirmationDialog.open}
         onClose={() => confirmationDialog.onConfirm(null)}
@@ -704,7 +646,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
               processingRef.current = false;
               setIsProcessing(false);
               setProgress("Processing stopped. Added artists found so far.");
-              // Get the artists found so far from the dialog state
               if (confirmationDialog.currentFoundArtists.length > 0) {
                 onArtistsFound(
                   confirmationDialog.currentFoundArtists.map(
@@ -738,7 +679,6 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
         </DialogActions>
       </Dialog>
 
-      {/* Image Preview Dialog */}
       <Dialog
         open={imageDialog}
         onClose={() => setImageDialog(false)}
@@ -794,7 +734,7 @@ const LineupUpload: React.FC<LineupUploadProps> = ({
                 alt="Uploaded lineup"
                 style={{
                   maxWidth: "100%",
-                  maxHeight: "calc(80vh - 64px)", // Account for dialog title
+                  maxHeight: "calc(80vh - 64px)",
                   objectFit: "contain",
                   boxShadow: "0 0 20px rgba(0,0,0,0.3)",
                 }}

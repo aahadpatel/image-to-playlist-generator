@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from "react";
 import {
   Box,
@@ -23,7 +25,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { Artist, SelectedArtist, Track } from "../types";
+import { Artist, SelectedArtist, Track } from "@/types";
 import ArtistSearch from "./ArtistSearch";
 import LineupUpload from "./LineupUpload";
 
@@ -47,10 +49,8 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
   onArtistsFound,
 }) => {
   const [playlistName, setPlaylistName] = useState("");
-  // Initialize global song count based on first artist or default to 1
   const [globalSongCount, setGlobalSongCount] = useState(() => {
     if (selectedArtists.length === 0) return 1;
-    // Check if all artists have the same song count
     const firstCount = selectedArtists[0].songCount;
     return selectedArtists.every((artist) => artist.songCount === firstCount)
       ? firstCount
@@ -64,13 +64,8 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     useState<SelectedArtist | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  // Number of artists to show when collapsed
   const COLLAPSED_COUNT = 5;
-
-  // Calculate if we need to show the expand button
   const showExpandButton = selectedArtists.length > COLLAPSED_COUNT;
-
-  // Get the artists to display based on expanded state
   const displayedArtists = isExpanded
     ? selectedArtists
     : selectedArtists.slice(0, COLLAPSED_COUNT);
@@ -86,17 +81,13 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     setSuccess(null);
 
     try {
-      // Get top tracks for each artist
       const artistTracks = await Promise.all(
         selectedArtists.map(async (artist) => {
-          const response = await fetch(
-            `http://127.0.0.1:5002/api/artists/${artist.id}/top-tracks`,
-            {
-              headers: {
-                Authorization: token,
-              },
-            }
-          );
+          const response = await fetch(`/api/artists/${artist.id}/top-tracks`, {
+            headers: {
+              Authorization: token,
+            },
+          });
           const data = await response.json();
           return {
             artistId: artist.id,
@@ -108,13 +99,11 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         })
       );
 
-      // Flatten and deduplicate tracks
       const trackUris = Array.from(
         new Set(artistTracks.flatMap((at) => at.tracks))
       );
 
-      // Create playlist
-      const response = await fetch("http://127.0.0.1:5002/api/playlists", {
+      const response = await fetch("/api/playlists", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -126,13 +115,12 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         }),
       });
 
-      await response.json(); // Playlist created successfully
+      await response.json();
       setSuccess(
         `Playlist "${playlistName}" created successfully! Open it in Spotify to start listening.`
       );
       setPlaylistName("");
     } catch (error) {
-      // Keep error logging for production debugging
       console.error("Error creating playlist:", error);
       setError("Failed to create playlist. Please try again.");
     } finally {
@@ -144,7 +132,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     (sum, artist) => sum + artist.songCount,
     0
   );
-  const estimatedDuration = totalSongs * 3.5; // Average song length of 3.5 minutes
+  const estimatedDuration = totalSongs * 3.5;
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -207,7 +195,6 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
               }}
             />
           </Box>
-          {/* Upload Image Section */}
           <Box
             sx={{ display: "flex", justifyContent: "center", width: "100%" }}
           >
@@ -220,7 +207,6 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
             </Box>
           </Box>
 
-          {/* Search Artists Section */}
           <Box sx={{ mt: 3, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Or search for artists manually:
@@ -253,7 +239,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 <Avatar
                   src={artist.images[0]?.url}
                   alt={artist.name}
-                  sx={{ width: 40, height: 40, cursor: "pointer" }}
+                  sx={{ width: 60, height: 60, cursor: "pointer", mr: 3 }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedArtistDialog(artist);
@@ -261,7 +247,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 />
               </ListItemAvatar>
               <ListItemText
-                sx={{ cursor: "pointer" }}
+                sx={{ ml: 2, cursor: "pointer" }}
                 primary={
                   <Box onClick={() => setSelectedArtistDialog(artist)}>
                     {artist.name}
@@ -271,7 +257,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 secondary={
                   <div>
                     <Box
-                      sx={{ width: 200 }}
+                      sx={{ width: 200, ml: 2 }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Box
@@ -288,20 +274,17 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                         step={1}
                         onChange={(_, newValue) => {
                           const value = newValue as number;
-                          // Update this artist's song count
                           onSongCountChange(artist.id, value);
 
-                          // Check if all artists will have the same value after this change
                           const willAllMatch = selectedArtists.every((a) =>
                             a.id === artist.id ? true : a.songCount === value
                           );
 
-                          // Update global count if all will match
                           if (willAllMatch) {
                             setGlobalSongCount(value);
                           }
                         }}
-                        valueLabelDisplay="auto" // Show value while sliding
+                        valueLabelDisplay="auto"
                         aria-labelledby={`songs-slider-${artist.id}`}
                       />
                     </Box>
@@ -366,7 +349,6 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         </Box>
       </Paper>
 
-      {/* Artist Profile Dialog */}
       <Dialog
         open={!!selectedArtistDialog}
         onClose={() => setSelectedArtistDialog(null)}

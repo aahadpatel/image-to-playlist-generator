@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState, useEffect } from "react";
 import {
   TextField,
@@ -14,7 +16,7 @@ import {
   Snackbar,
   Alert,
 } from "@mui/material";
-import { Artist, SelectedArtist } from "../types";
+import { Artist, SelectedArtist } from "@/types";
 
 interface ArtistSearchProps {
   token: string;
@@ -45,16 +47,13 @@ const ArtistSearch: React.FC<ArtistSearchProps> = ({
       setIsSearching(true);
       try {
         if (!token) {
-          // Keep error logging for production debugging
           console.error("No access token available");
           setArtists([]);
           return;
         }
 
         const response = await fetch(
-          `http://127.0.0.1:5002/api/search/artists?q=${encodeURIComponent(
-            searchTerm
-          )}`,
+          `/api/search/artists?q=${encodeURIComponent(searchTerm)}`,
           {
             headers: {
               Authorization: token,
@@ -65,11 +64,8 @@ const ArtistSearch: React.FC<ArtistSearchProps> = ({
         const data = await response.json();
 
         if (!response.ok) {
-          // Keep error logging for production debugging
           console.error("API Error:", data.error);
           if (response.status === 401) {
-            // Token expired or invalid - could trigger a refresh here
-            // Keep error logging for production debugging
             console.error("Token expired or invalid");
           }
           setArtists([]);
@@ -79,12 +75,10 @@ const ArtistSearch: React.FC<ArtistSearchProps> = ({
         if (data.artists && Array.isArray(data.artists.items)) {
           setArtists(data.artists.items);
         } else {
-          // Keep error logging for production debugging
           console.error("Unexpected API response format:", data);
           setArtists([]);
         }
       } catch (error) {
-        // Keep error logging for production debugging
         console.error("Error searching artists:", error);
         setArtists([]);
       } finally {
