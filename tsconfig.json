@@ -21,7 +21,14 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
-    }
+    },
+    "types": [
+      "node",
+      "react",
+      "react-dom",
+      "react-transition-group",
+      "tesseract.js"
+    ]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
