@@ -1,13 +1,10 @@
 import { NextResponse } from "next/server";
 
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const REDIRECT_URI =
-  process.env.REDIRECT_URI ||
-  "https://image-to-playlist-generator.vercel.app/auth/callback";
+const REDIRECT_URI = (process.env.REDIRECT_URI || "https://image-to-playlist-generator.vercel.app/auth/callback").trim();
 
 export async function GET() {
-  const scope =
-    "playlist-modify-public playlist-modify-private user-read-private user-read-email";
+  const scope = "playlist-modify-public playlist-modify-private user-read-private user-read-email";
   const state = Math.random().toString(36).substring(7);
 
   const params = new URLSearchParams({
@@ -18,7 +15,5 @@ export async function GET() {
     state,
   });
 
-  return NextResponse.redirect(
-    `https://accounts.spotify.com/authorize?${params.toString()}`
-  );
+  return NextResponse.redirect(`https://accounts.spotify.com/authorize?${params.toString()}`);
 }
