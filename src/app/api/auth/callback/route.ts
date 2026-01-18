@@ -3,14 +3,9 @@ import { headers } from "next/headers";
 
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const SPOTIFY_CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
-const REDIRECT_URI = (
-  process.env.REDIRECT_URI ||
-  "https://image-to-playlist-generator.vercel.app/auth/callback"
-).trim();
-const APP_URL = (
-  process.env.NEXT_PUBLIC_APP_URL ||
-  "https://image-to-playlist-generator.vercel.app"
-).trim();
+const REDIRECT_URI =
+  process.env.REDIRECT_URI || "http://127.0.0.1:3000/api/auth/callback";
+const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://127.0.0.1:3000";
 
 // Validate environment variables
 if (!SPOTIFY_CLIENT_ID || !SPOTIFY_CLIENT_SECRET) {
@@ -77,6 +72,7 @@ export async function GET(request: NextRequest) {
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax" as const,
       path: "/",
+      // Don't set domain to allow it to use the default (current domain)
     };
 
     // Set access token cookie with expiration

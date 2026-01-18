@@ -1,10 +1,8 @@
 import { NextResponse } from "next/server";
 
 const SPOTIFY_CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
-const REDIRECT_URI = (
-  process.env.REDIRECT_URI ||
-  "https://image-to-playlist-generator.vercel.app/auth/callback"
-).trim();
+const REDIRECT_URI =
+  process.env.REDIRECT_URI || "http://localhost:3000/api/auth/callback";
 
 export async function GET() {
   const scope =

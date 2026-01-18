@@ -10,11 +10,14 @@ import { MusicNote } from "@mui/icons-material";
 const GradientBackground = styled(Box)({
   minHeight: "100vh",
   background: "linear-gradient(135deg, #1DB954 0%, #191414 100%)",
-  padding: "2rem 0",
+  padding: { xs: "1rem", md: "2rem" },
 });
 
 const StyledPaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(4),
+  [theme.breakpoints.down("sm")]: {
+    padding: theme.spacing(2),
+  },
   borderRadius: theme.spacing(2),
   backgroundColor: "rgba(255, 255, 255, 0.95)",
   backdropFilter: "blur(10px)",
@@ -23,6 +26,10 @@ const StyledPaper = styled(Paper)(({ theme }) => ({
 
 const StyledButton = styled(Button)(({ theme }) => ({
   padding: "1rem 2rem",
+  [theme.breakpoints.down("sm")]: {
+    padding: "0.75rem 1.5rem",
+    fontSize: "1rem",
+  },
   fontSize: "1.2rem",
   borderRadius: "2rem",
   textTransform: "none",
@@ -107,20 +114,20 @@ export default function Home() {
 
   return (
     <GradientBackground>
-      <Container maxWidth="lg">
+      <Container maxWidth="lg" sx={{ px: { xs: 1, sm: 2, md: 3 } }}>
         <StyledPaper elevation={3}>
-          <Box sx={{ textAlign: "center", mb: 6 }}>
+          <Box sx={{ textAlign: "center", mb: { xs: 3, md: 6 } }}>
             <Typography
               variant="h2"
               component="h1"
               gutterBottom
               sx={{
                 fontWeight: 700,
-                fontSize: { xs: "2.5rem", md: "3.5rem" },
+                fontSize: { xs: "2rem", sm: "2.5rem", md: "3.5rem" },
                 background: "linear-gradient(45deg, #1DB954 30%, #191414 90%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
-                mb: 3,
+                mb: { xs: 2, md: 3 },
               }}
             >
               Festival Playlist Generator
@@ -132,8 +139,9 @@ export default function Home() {
                 maxWidth: "800px",
                 mx: "auto",
                 lineHeight: 1.8,
-                fontSize: "1.1rem",
-                mb: 4,
+                fontSize: { xs: "0.9rem", sm: "1rem", md: "1.1rem" },
+                mb: { xs: 3, md: 4 },
+                px: { xs: 2, sm: 3 },
               }}
             >
               I&apos;m going to Coachella again next year and was like man I do
@@ -144,7 +152,7 @@ export default function Home() {
             </Typography>
 
             {!token ? (
-              <Box sx={{ mt: 6 }}>
+              <Box sx={{ mt: { xs: 3, md: 6 } }}>
                 <StyledButton
                   variant="contained"
                   color="primary"

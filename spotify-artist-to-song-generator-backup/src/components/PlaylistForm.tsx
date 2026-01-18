@@ -1,5 +1,3 @@
-"use client";
-
 import React, { useState } from "react";
 import {
   Box,
@@ -25,7 +23,7 @@ import {
 import DeleteIcon from "@mui/icons-material/Delete";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import ExpandLessIcon from "@mui/icons-material/ExpandLess";
-import { Artist, SelectedArtist, Track } from "@/types";
+import { Artist, SelectedArtist, Track } from "../types";
 import ArtistSearch from "./ArtistSearch";
 import LineupUpload from "./LineupUpload";
 
@@ -49,8 +47,10 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
   onArtistsFound,
 }) => {
   const [playlistName, setPlaylistName] = useState("");
+  // Initialize global song count based on first artist or default to 1
   const [globalSongCount, setGlobalSongCount] = useState(() => {
     if (selectedArtists.length === 0) return 1;
+    // Check if all artists have the same song count
     const firstCount = selectedArtists[0].songCount;
     return selectedArtists.every((artist) => artist.songCount === firstCount)
       ? firstCount
@@ -64,8 +64,13 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     useState<SelectedArtist | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
 
+  // Number of artists to show when collapsed
   const COLLAPSED_COUNT = 5;
+
+  // Calculate if we need to show the expand button
   const showExpandButton = selectedArtists.length > COLLAPSED_COUNT;
+
+  // Get the artists to display based on expanded state
   const displayedArtists = isExpanded
     ? selectedArtists
     : selectedArtists.slice(0, COLLAPSED_COUNT);
@@ -81,13 +86,17 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     setSuccess(null);
 
     try {
+      // Get top tracks for each artist
       const artistTracks = await Promise.all(
         selectedArtists.map(async (artist) => {
-          const response = await fetch(`/artists/${artist.id}/top-tracks`, {
-            headers: {
-              Authorization: token,
-            },
-          });
+          const response = await fetch(
+            `http://127.0.0.1:5002/api/artists/${artist.id}/top-tracks`,
+            {
+              headers: {
+                Authorization: token,
+              },
+            }
+          );
           const data = await response.json();
           return {
             artistId: artist.id,
@@ -99,11 +108,13 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         })
       );
 
+      // Flatten and deduplicate tracks
       const trackUris = Array.from(
         new Set(artistTracks.flatMap((at) => at.tracks))
       );
 
-      const response = await fetch("/playlists", {
+      // Create playlist
+      const response = await fetch("http://127.0.0.1:5002/api/playlists", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -115,12 +126,13 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         }),
       });
 
-      await response.json();
+      await response.json(); // Playlist created successfully
       setSuccess(
         `Playlist "${playlistName}" created successfully! Open it in Spotify to start listening.`
       );
       setPlaylistName("");
     } catch (error) {
+      // Keep error logging for production debugging
       console.error("Error creating playlist:", error);
       setError("Failed to create playlist. Please try again.");
     } finally {
@@ -132,7 +144,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
     (sum, artist) => sum + artist.songCount,
     0
   );
-  const estimatedDuration = totalSongs * 3.5;
+  const estimatedDuration = totalSongs * 3.5; // Average song length of 3.5 minutes
 
   return (
     <Box sx={{ mt: 4 }}>
@@ -154,13 +166,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: 2, mb: 3 }}>
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: { xs: "column", sm: "row" },
-              gap: 2,
-            }}
-          >
+          <Box sx={{ display: "flex", gap: 2 }}>
             <TextField
               fullWidth
               label="Playlist Name"
@@ -179,9 +185,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 max: 5,
                 step: 1,
               }}
-              sx={{
-                width: { xs: "100%", sm: 150 },
-              }}
+              sx={{ width: 150 }}
               onChange={(e) => {
                 const newValue = e.target.value;
                 setInputValue(newValue);
@@ -203,6 +207,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
               }}
             />
           </Box>
+          {/* Upload Image Section */}
           <Box
             sx={{ display: "flex", justifyContent: "center", width: "100%" }}
           >
@@ -215,6 +220,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
             </Box>
           </Box>
 
+          {/* Search Artists Section */}
           <Box sx={{ mt: 3, mb: 2 }}>
             <Typography variant="subtitle1" gutterBottom>
               Or search for artists manually:
@@ -247,12 +253,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 <Avatar
                   src={artist.images[0]?.url}
                   alt={artist.name}
-                  sx={{
-                    width: { xs: 40, sm: 60 },
-                    height: { xs: 40, sm: 60 },
-                    cursor: "pointer",
-                    mr: { xs: 1, sm: 3 },
-                  }}
+                  sx={{ width: 40, height: 40, cursor: "pointer" }}
                   onClick={(e) => {
                     e.stopPropagation();
                     setSelectedArtistDialog(artist);
@@ -260,13 +261,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 />
               </ListItemAvatar>
               <ListItemText
-                sx={{
-                  ml: { xs: 1, sm: 2 },
-                  cursor: "pointer",
-                  "& .MuiTypography-root": {
-                    fontSize: { xs: "0.9rem", sm: "1rem" },
-                  },
-                }}
+                sx={{ cursor: "pointer" }}
                 primary={
                   <Box onClick={() => setSelectedArtistDialog(artist)}>
                     {artist.name}
@@ -276,11 +271,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                 secondary={
                   <div>
                     <Box
-                      sx={{
-                        width: { xs: 150, sm: 200 },
-                        ml: { xs: 1, sm: 2 },
-                        fontSize: { xs: "0.8rem", sm: "0.9rem" },
-                      }}
+                      sx={{ width: 200 }}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Box
@@ -297,17 +288,20 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
                         step={1}
                         onChange={(_, newValue) => {
                           const value = newValue as number;
+                          // Update this artist's song count
                           onSongCountChange(artist.id, value);
 
+                          // Check if all artists will have the same value after this change
                           const willAllMatch = selectedArtists.every((a) =>
                             a.id === artist.id ? true : a.songCount === value
                           );
 
+                          // Update global count if all will match
                           if (willAllMatch) {
                             setGlobalSongCount(value);
                           }
                         }}
-                        valueLabelDisplay="auto"
+                        valueLabelDisplay="auto" // Show value while sliding
                         aria-labelledby={`songs-slider-${artist.id}`}
                       />
                     </Box>
@@ -346,14 +340,7 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
           </Alert>
         )}
 
-        <Box
-          sx={{
-            mt: 3,
-            display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
-            gap: 2,
-          }}
-        >
+        <Box sx={{ mt: 3, display: "flex", gap: 2 }}>
           <Button
             fullWidth
             variant="contained"
@@ -365,9 +352,6 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
             startIcon={
               isCreating ? <CircularProgress size={20} color="inherit" /> : null
             }
-            sx={{
-              py: { xs: 1.5, sm: 1 },
-            }}
           >
             {isCreating
               ? "Creating..."
@@ -375,20 +359,14 @@ const PlaylistForm: React.FC<PlaylistFormProps> = ({
           </Button>
 
           {selectedArtists.length > 0 && (
-            <Button
-              color="error"
-              onClick={onClearAll}
-              disabled={isCreating}
-              sx={{
-                py: { xs: 1.5, sm: 1 },
-              }}
-            >
+            <Button color="error" onClick={onClearAll} disabled={isCreating}>
               Clear All
             </Button>
           )}
         </Box>
       </Paper>
 
+      {/* Artist Profile Dialog */}
       <Dialog
         open={!!selectedArtistDialog}
         onClose={() => setSelectedArtistDialog(null)}
